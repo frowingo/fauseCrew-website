@@ -23,7 +23,7 @@ const initialChores = [
   { id: 3, title: "Çöpü çıkar", person: "C", color: "lilac", done: false },
 ];
 const members = [
-  { name: "Ece", initial: "E", color: "peach", role: "Sen", points: 120 },
+  { name: "Elif", initial: "E", color: "peach", role: "Sen", points: 120 },
   {
     name: "Deniz",
     initial: "D",
@@ -51,7 +51,7 @@ export function AppPreview({
   const [noticeOpen, setNoticeOpen] = useState(false);
   const completed = chores.filter((chore) => chore.done).length;
   return (
-    <div className="phone" aria-label="FauseCrew etkileşimli örnek ekranı">
+    <div className="phone" aria-label="FausCrew etkileşimli örnek ekranı">
       <div className="phone-screen">
         <div className="phone-status">
           <span>9:41</span>
@@ -66,7 +66,7 @@ export function AppPreview({
           <div className="phone-topline">
             <span>
               <img src="/app-icon.svg" alt="" />
-              FauseCrew
+              FausCrew
             </span>
             <span className="avatar peach">E</span>
           </div>
@@ -75,7 +75,7 @@ export function AppPreview({
               <small>Moda’daki evimiz</small>
               <h3>
                 {tab === "home"
-                  ? "Merhaba, Ece!"
+                  ? "Merhaba, Elif!"
                   : tab === "crew"
                     ? "Bizim ekip"
                     : "Biraz oyun zamanı."}

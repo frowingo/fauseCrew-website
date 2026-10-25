@@ -1,5 +1,5 @@
 ---
-name: FauseCrew
+name: FausCrew
 description: A warm, shared-home identity inherited from the mobile app.
 colors:
   berry: "#611a38"
@@ -45,11 +45,11 @@ components:
     padding: "10px 13px"
 ---
 
-# Design System: FauseCrew
+# Design System: FausCrew
 
 ## Overview
 
-FauseCrew inherits the mobile app's orange-to-berry identity, original roof-F mark and rounded light surfaces. The website extends that established identity with locally bundled Manrope and generous space around concise Turkish copy. This document describes the implemented site, rather than introducing a new brand direction.
+FausCrew inherits the mobile app's orange-to-berry identity, original roof-F mark and rounded light surfaces. The website extends that established identity with locally bundled Manrope and generous space around concise Turkish copy. This document describes the implemented site, rather than introducing a new brand direction.
 
 **Key Characteristics:**
 - Warm paper backgrounds and dark berry emphasis.

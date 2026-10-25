@@ -1,6 +1,6 @@
-# FauseCrew website
+# FausCrew website
 
-FauseCrew mobil uygulaması için Türkçe, responsive React tanıtım sitesi.
+FausCrew mobil uygulaması için Türkçe, responsive React tanıtım sitesi.
 
 ## Çalıştırma
 
@@ -17,6 +17,8 @@ npm run preview
 ```
 
 `npm run typecheck` yalnızca TypeScript kontrolü yapar. Node.js 22.12+ önerilir.
+
+Resmi uygulama adı **FausCrew**, örnek kullanıcı adı **Elif**tir. `npm run check:content`, kaynaklarda ve proje dokümanlarında eski yazımların kalmadığını kontrol eder; üretim derlemesinin başında da otomatik çalışır.
 
 ## Yapı
 
@@ -42,6 +44,42 @@ Kullanıcı isteğiyle iki mağaza da “Çok yakında” olarak gösterilir. Ya
 
 Görsel referans: `../houseFlowApp/FausCrew/Views/Shared/Brand/FausMark.swift`, `MainScreenBackground.swift`, `HouseDashboardView.swift`, `GamesHubView.swift` ve `Design/AppIcon/FausCrew-AppIcon-Light.svg`.
 
-Mobil repo “FausCrew” adını kullanır; bu site kullanıcı briefindeki “FauseCrew” yazımını izler. Önizleme gerçek uygulama ekran görüntüsü değildir: kaynak ekranların web uyarlamasıdır, örnek içerik olarak işaretlenmiştir. Görev değişiklikleri sadece bellektedir, yenilemede sıfırlanır. Fontlar yerel bundle içindedir; uzaktan font / analitik / çerez hizmeti yoktur.
+Uygulamanın ve sitenin resmi adı “FausCrew” olarak kullanılmalıdır. Örnek kullanıcı adı “Elif”tir. Önizleme gerçek uygulama ekran görüntüsü değildir: kaynak ekranların web uyarlamasıdır, örnek içerik olarak işaretlenmiştir. Görev değişiklikleri sadece bellektedir, yenilemede sıfırlanır. Fontlar yerel bundle içindedir; uzaktan font / analitik / çerez hizmeti yoktur.
 
-Bu çalışma yereldir, bir hosting ortamına yayınlanmadı. `dist/` herhangi bir statik hosting hizmetine dağıtılabilir. Mağaza başvurusu öncesinde gerçek destek kanalı, gizlilik politikası, kullanım koşulları ve hesap silme yönlendirmesi ürün sahibinin doğruladığı içerikle eklenmelidir. Bu bilgiler verilmediği için hukuki metin veya iletişim adresi uydurulmadı.
+`dist/` herhangi bir statik hosting hizmetine dağıtılabilir. Mağaza başvurusu öncesinde gerçek destek kanalı, gizlilik politikası, kullanım koşulları ve hesap silme yönlendirmesi ürün sahibinin doğruladığı içerikle eklenmelidir. Bu bilgiler verilmediği için hukuki metin veya iletişim adresi uydurulmadı.
+
+## Fly.io yayını
+
+`Dockerfile`, React uygulamasını Node.js ile derler ve yalnızca derlenen dosyaları Nginx imajına kopyalar. `.dockerignore`, derleme bağlamını gereken kaynak dosyalarıyla sınırlar; yerel ortam dosyaları gönderilmez.
+
+`fly.toml` hedefi `fauscrew-website`, bölgeyi Frankfurt (`fra`) olarak tanımlar. Tek paylaşımlı CPU ve 256 MB RAM yeterlidir. Trafik yokken makine durur, istek geldiğinde otomatik açılır; ilk istekte kısa bir açılış gecikmesi olabilir. HTTPS zorunludur, sağlık kontrolü `/healthz` üzerinden yapılır. Veritabanı veya disk volume gerekmez.
+
+İlk kurulum (uygulama yoksa):
+
+```sh
+flyctl auth login
+flyctl apps create fauscrew-website --org personal
+```
+
+Yayınlama ve sonraki güncellemeler:
+
+```sh
+flyctl config validate
+flyctl deploy --remote-only --ha=false
+flyctl status
+flyctl checks list
+```
+
+`--ha=false`, bu ilk sürüm için ikinci bir yedek makine oluşturulmasını önler. Uzak derleyici kullanıldığı için yerel Docker servisinin çalışması gerekmez. Hedef adres: `https://fauscrew-website.fly.dev/`.
+
+Eski yayın adresi, bu doğru adrese HTTP 308 ile kalıcı olarak yönlendirilir. Yönlendirme Nginx yapılandırması `deployment/redirect.conf` dosyasındadır; eski uygulama site içeriğini sunmaz.
+
+Vite ayarları derleme sırasında gömülür. Mağaza bağlantıları yayınlandığında değerleri build arg olarak iletip yeniden yayınlayın; yalnızca `fly secrets set` ile runtime değişkeni eklemek statik siteyi değiştirmez:
+
+```sh
+flyctl deploy --remote-only --ha=false \
+  --build-arg VITE_APP_STORE_URL=https://apps.apple.com/your-listing \
+  --build-arg VITE_PLAY_STORE_URL=https://play.google.com/store/apps/details?id=your.package
+```
+
+Bu ayarlar herkese açık URL'ler içindir; gizli anahtar göndermeyin. Linkler verilmediğinde iki mağaza da “Çok yakında” olarak kalır.

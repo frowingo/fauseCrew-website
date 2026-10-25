@@ -1,6 +1,6 @@
-# FauseCrew website
+# FausCrew website
 
-A Turkish, responsive public introduction to the FauseCrew mobile app, intended to support its future App Store and Google Play presence. Built locally in this repository as requested.
+A Turkish, responsive public introduction to the FausCrew mobile app, intended to support its future App Store and Google Play presence. Built locally in this repository as requested.
 
 ## Audience and outcome
 
@@ -8,11 +8,11 @@ People sharing a home: roommates, couples, families. Understand how the app help
 
 ## Confirmed constraints
 
-React project; inherit visual patterns from ../houseFlowApp. Store links stay “Yakında”, confirmed by user. Future houseFlow API integration, no active integration now. Avoid unnecessary architecture. Never build a .NET project without explicit permission.
+React project; inherit visual patterns from ../houseFlowApp. Store links stay “Yakında”, confirmed by user. Future houseFlow API integration, no active integration now. Avoid unnecessary architecture. Never build a .NET project without explicit permission. Published to Fly.io at the user's request: https://fauscrew-website.fly.dev/ (personal organization, Frankfurt, single shared CPU / 256 MB, autostop/autostart).
 
 ## Product truth
 
-Source reviewed: FausBrand, MainScreenBackground, HouseDashboardView, ChoreRow, GamesHubView, MainTabView and AppEnvironment in houseFlowApp. Confirmed features: create/join a household, invite codes, chores, announcements, members and games. Source calls the app FausCrew; website follows the user's requested spelling FauseCrew. Logo is copied unchanged from its light SVG app icon.
+Source reviewed: FausBrand, MainScreenBackground, HouseDashboardView, ChoreRow, GamesHubView, MainTabView and AppEnvironment in houseFlowApp. Confirmed features: create/join a household, invite codes, chores, announcements, members and games. The official product name is FausCrew everywhere. The primary illustrative user is Elif. These spellings are confirmed by the user and must be preserved. Logo is copied unchanged from its light SVG app icon.
 
 ## Stack
 

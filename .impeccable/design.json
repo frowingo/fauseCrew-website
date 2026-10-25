@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-10-25T18:59:53.431860+00:00",
-  "title": "Design System: FauseCrew",
+  "title": "Design System: FausCrew",
   "extensions": {
     "shadows": [
       {
@@ -79,7 +79,7 @@
       "name": "FAQ disclosure",
       "kind": "custom",
       "description": "Native disclosure with an understated divider.",
-      "html": "<details class=\"ds-faq\"><summary>FauseCrew kimler için?<span aria-hidden=\"true\">⌄</span></summary><p>Aynı evi paylaşan herkes için: ev arkadaşları, çiftler ve aileler.</p></details>",
+      "html": "<details class=\"ds-faq\"><summary>FausCrew kimler için?<span aria-hidden=\"true\">⌄</span></summary><p>Aynı evi paylaşan herkes için: ev arkadaşları, çiftler ve aileler.</p></details>",
       "css": ".ds-faq{font-family:\"Manrope Variable\",sans-serif;color:var(--ink,#302c2d);border-block:1px solid var(--line,#e8e2dc)}.ds-faq summary{display:flex;align-items:center;justify-content:space-between;gap:20px;list-style:none;font-size:13px;font-weight:650;cursor:pointer;padding:23px 0}.ds-faq summary::-webkit-details-marker{display:none}.ds-faq summary span{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#f0eae3}.ds-faq[open] summary span{transform:rotate(180deg)}.ds-faq summary:focus-visible{outline:3px solid #b85929;outline-offset:5px}.ds-faq p{font-size:12px;line-height:1.9;color:var(--muted,#746e6d);padding:0 32px 24px 0;max-width:65ch}"
     },
     {
@@ -91,7 +91,7 @@
     }
   ],
   "narrative": {
-    "overview": "FauseCrew inherits the mobile app's orange-to-berry identity, original roof-F mark and rounded light surfaces. The website extends that established identity with locally bundled Manrope and generous space around concise Turkish copy. This document describes the implemented site, rather than introducing a new brand direction.",
+    "overview": "FausCrew inherits the mobile app's orange-to-berry identity, original roof-F mark and rounded light surfaces. The website extends that established identity with locally bundled Manrope and generous space around concise Turkish copy. This document describes the implemented site, rather than introducing a new brand direction.",
     "keyCharacteristics": [
       "Warm paper backgrounds and dark berry emphasis.",
       "Clear, rounded typography with compact supporting copy.",

@@ -47,7 +47,7 @@ const features = [
 ];
 const faqs = [
   {
-    question: "FauseCrew kimler için?",
+    question: "FausCrew kimler için?",
     answer:
       "Aynı evi paylaşan herkes için: ev arkadaşları, çiftler ve aileler. Görevleri, ev içi duyuruları ve birlikte geçirilen zamanı ortak bir yerde buluşturur.",
   },
@@ -59,7 +59,7 @@ const faqs = [
   {
     question: "Hangi telefonlarda kullanabileceğim?",
     answer:
-      "FauseCrew, iOS ve Android için hazırlanıyor. App Store ve Google Play bağlantıları yayınlandığında bu sayfadan ulaşabileceksin.",
+      "FausCrew, iOS ve Android için hazırlanıyor. App Store ve Google Play bağlantıları yayınlandığında bu sayfadan ulaşabileceksin.",
   },
   {
     question: "Sitedeki önizleme gerçek hesabıma bağlı mı?",
@@ -393,7 +393,7 @@ export default function App() {
           </a>
         </div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} FauseCrew</span>
+          <span>© {new Date().getFullYear()} FausCrew</span>
           <span>Bir evden daha fazlası, bir ekip.</span>
           <span className="footer-heart">
             <Heart size={13} /> Birlikte daha iyi.
