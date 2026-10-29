@@ -69,6 +69,12 @@ flyctl status
 flyctl checks list
 ```
 
+Üretim yayını normal geliştirme akışında elle yapılmaz. `dev` dalından
+`master` dalına açılan pull request merge edildiğinde GitHub Actions,
+`.github/workflows/deploy-production.yml` üzerinden Fly.io dağıtımını başlatır.
+Workflow, GitHub Actions secret'ı olarak `FLY_API_TOKEN` bekler. `master` dalı
+doğrudan push'a kapalıdır; değişiklikler pull request ile birleştirilmelidir.
+
 `--ha=false`, bu ilk sürüm için ikinci bir yedek makine oluşturulmasını önler. Uzak derleyici kullanıldığı için yerel Docker servisinin çalışması gerekmez. Ana yayın adresi: `https://fauscrew.iworf.com/`.
 
 Özel alan adının bağlı olduğu uygulama siteyi doğrudan sunar; `nginx.conf` dosyasında başka bir alan adına yönlendirme yoktur. Önceki yönlendirme yapılandırması kaldırılmıştır. Fly dosya enjeksiyonlarını güncellerken `/etc/nginx/conf.d/default.conf` için `nginx.conf` kullanılmalıdır.
