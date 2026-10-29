@@ -52,13 +52,12 @@ Uygulamanın ve sitenin resmi adı “FausCrew” olarak kullanılmalıdır. Ör
 
 `Dockerfile`, React uygulamasını Node.js ile derler ve yalnızca derlenen dosyaları Nginx imajına kopyalar. `.dockerignore`, derleme bağlamını gereken kaynak dosyalarıyla sınırlar; yerel ortam dosyaları gönderilmez.
 
-`fly.toml` hedefi `fauscrew-website`, bölgeyi Frankfurt (`fra`) olarak tanımlar. Tek paylaşımlı CPU ve 256 MB RAM yeterlidir. Trafik yokken makine durur, istek geldiğinde otomatik açılır; ilk istekte kısa bir açılış gecikmesi olabilir. HTTPS zorunludur, sağlık kontrolü `/healthz` üzerinden yapılır. Veritabanı veya disk volume gerekmez.
+`fly.toml`, özel alan adının ve TLS sertifikasının bağlı olduğu mevcut Fly uygulamasını hedefler; bölge Frankfurt (`fra`) olarak tanımlıdır. Fly uygulamasının dahili kimliği marka metni değildir; alan adı taşınmadan değiştirilmemelidir. Tek paylaşımlı CPU ve 256 MB RAM yeterlidir. Trafik yokken makine durur, istek geldiğinde otomatik açılır; ilk istekte kısa bir açılış gecikmesi olabilir. HTTPS zorunludur, sağlık kontrolü `/healthz` üzerinden yapılır. Veritabanı veya disk volume gerekmez.
 
-İlk kurulum (uygulama yoksa):
+Mevcut yayın hesabına giriş:
 
 ```sh
 flyctl auth login
-flyctl apps create fauscrew-website --org personal
 ```
 
 Yayınlama ve sonraki güncellemeler:
@@ -70,9 +69,9 @@ flyctl status
 flyctl checks list
 ```
 
-`--ha=false`, bu ilk sürüm için ikinci bir yedek makine oluşturulmasını önler. Uzak derleyici kullanıldığı için yerel Docker servisinin çalışması gerekmez. Hedef adres: `https://fauscrew-website.fly.dev/`.
+`--ha=false`, bu ilk sürüm için ikinci bir yedek makine oluşturulmasını önler. Uzak derleyici kullanıldığı için yerel Docker servisinin çalışması gerekmez. Ana yayın adresi: `https://fauscrew.iworf.com/`.
 
-Eski yayın adresi, bu doğru adrese HTTP 308 ile kalıcı olarak yönlendirilir. Yönlendirme Nginx yapılandırması `deployment/redirect.conf` dosyasındadır; eski uygulama site içeriğini sunmaz.
+Özel alan adının bağlı olduğu uygulama siteyi doğrudan sunar; `nginx.conf` dosyasında başka bir alan adına yönlendirme yoktur. Önceki yönlendirme yapılandırması kaldırılmıştır. Fly dosya enjeksiyonlarını güncellerken `/etc/nginx/conf.d/default.conf` için `nginx.conf` kullanılmalıdır.
 
 Vite ayarları derleme sırasında gömülür. Mağaza bağlantıları yayınlandığında değerleri build arg olarak iletip yeniden yayınlayın; yalnızca `fly secrets set` ile runtime değişkeni eklemek statik siteyi değiştirmez:
 

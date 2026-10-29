@@ -19,7 +19,9 @@ const files = [
 
 const errors = [];
 for (const file of files) {
-  const text = await readFile(file, 'utf8');
+  let text = await readFile(file, 'utf8');
+  // Fly's existing app ID owns the custom domain. It is not public brand copy.
+  if (file === 'fly.toml') text = text.replace(/^app\s*=\s*"[^"]+"\s*$/m, '');
   if (/fausecrew/i.test(text)) errors.push(`${file}: uygulama adı yanlış yazılmış.`);
   if (/\bEce\b/u.test(text)) errors.push(`${file}: eski örnek kullanıcı adı kalmış.`);
 }

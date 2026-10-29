@@ -8,7 +8,7 @@ People sharing a home: roommates, couples, families. Understand how the app help
 
 ## Confirmed constraints
 
-React project; inherit visual patterns from ../houseFlowApp. Store links stay “Yakında”, confirmed by user. Future houseFlow API integration, no active integration now. Avoid unnecessary architecture. Never build a .NET project without explicit permission. Published to Fly.io at the user's request: https://fauscrew-website.fly.dev/ (personal organization, Frankfurt, single shared CPU / 256 MB, autostop/autostart).
+React project; inherit visual patterns from ../houseFlowApp. Store links stay “Yakında”, confirmed by user. Future houseFlow API integration, no active integration now. Avoid unnecessary architecture. Never build a .NET project without explicit permission. Published to Fly.io at the user's request: https://fauscrew.iworf.com/ (personal organization, Frankfurt, single shared CPU / 256 MB, autostop/autostart).
 
 ## Product truth
 
@@ -21,3 +21,5 @@ React, TypeScript, Vite, Lucide, locally bundled Manrope. Static marketing websi
 ## Deliberately undecided
 
 Store listing URLs, support email, legal entity, final privacy/terms content, hosting domain, production API and auth. No claims about price, ratings, usage counts, security certifications or release dates.
+
+The canonical public domain is fauscrew.iworf.com. Serve it directly without redirecting to a fly.dev hostname. Preserve the existing Fly app identity that owns its DNS target and TLS certificate.

@@ -1,4 +1,6 @@
-app = "fauscrew-website"
+# This existing Fly app owns fauscrew.iworf.com and its TLS certificate.
+# Its infrastructure ID is independent of the public FausCrew brand.
+app = "fausecrew-website"
 primary_region = "fra"
 kill_signal = "SIGQUIT"
 kill_timeout = "5s"
