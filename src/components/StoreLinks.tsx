@@ -1,4 +1,5 @@
 import { config } from "../lib/config";
+import { useLang } from "../lib/i18n";
 
 function AppleIcon() {
   return (
@@ -20,6 +21,7 @@ function PlayIcon() {
   );
 }
 export function StoreLinks() {
+  const { t } = useLang();
   return (
     <div className="store-links">
       {[
@@ -30,7 +32,7 @@ export function StoreLinks() {
           <>
             {store.icon}
             <span>
-              <small>{store.url ? "Uygulamayı indir" : "Çok yakında"}</small>
+              <small>{store.url ? t.store.download : t.store.soon}</small>
               <strong>{store.name}</strong>
             </span>
             {!store.url && <span className="store-dot" />}
@@ -50,7 +52,7 @@ export function StoreLinks() {
           <div
             className="store-link unavailable"
             key={store.name}
-            aria-label={`${store.name} — çok yakında`}
+            aria-label={`${store.name} — ${t.store.soonLabel}`}
           >
             {content}
           </div>

@@ -6,113 +6,85 @@ import {
   type ReactNode,
 } from "react";
 import {
+  ArrowRight,
   ArrowUpDown,
+  BadgeCheck,
   BatteryFull,
   Check,
   ChevronDown,
   ChevronRight,
   ChevronUp,
-  CircleArrowRight,
+  Circle,
   CircleCheck,
   CircleUserRound,
   ClipboardList,
   Clock,
-  Copy,
   Crosshair,
   Gamepad2,
   Hand,
   House,
-  Info,
-  KeyRound,
-  Languages,
   Megaphone,
-  Plus,
   Rocket,
   RotateCw,
-  ScanSearch,
   Scissors,
+  Search,
   Send,
   Signal,
   User,
-  UserPlus,
   Users,
   Wifi,
 } from "lucide-react";
-import { AmbientLines, FausHouseIcon, HeroGeometry } from "./Brand";
+import { useLang } from "../lib/i18n";
+import {
+  AmbientLines,
+  FausHouseIcon,
+  HeroGeometry,
+  MeshTexture,
+} from "./Brand";
 
-/** Mirrors the app's `AppTab`: Profile · Home · Games. */
-export type PreviewTab = "profile" | "home" | "games";
+/** A part of the dashboard the features section points at. */
+export type PreviewFocus = "chores" | "announcements" | "games";
 
 type ChoreStatus = "progress" | "review" | "completed";
+/** `ChoreStatus.iconName`: arrow.right / magnifyingglass circles and the completed seal. */
 const statusMeta: Record<
   ChoreStatus,
-  { label: string; icon: typeof CircleCheck; next: ChoreStatus }
+  { glyph: typeof Check; next: ChoreStatus }
 > = {
-  progress: { label: "Devam ediyor", icon: CircleArrowRight, next: "review" },
-  review: { label: "İncelemede", icon: ScanSearch, next: "completed" },
-  completed: { label: "Tamamlandı", icon: CircleCheck, next: "progress" },
+  progress: { glyph: ArrowRight, next: "review" },
+  review: { glyph: Search, next: "completed" },
+  completed: { glyph: Check, next: "progress" },
 };
 
+/** Example housemates; avatars show `User.initials` like the app. */
 const members = [
-  { name: "Elif", initial: "E", tint: "indigo" },
-  { name: "Deniz", initial: "D", tint: "teal" },
-  { name: "Can", initial: "C", tint: "purple" },
+  { name: "Elif", initial: "E" },
+  { name: "Ferdi", initial: "F" },
+  { name: "Emre Can", initial: "EC" },
 ] as const;
 
+/** Titles come from `content.preview.chores` by id. */
 const initialChores: {
-  id: number;
-  title: string;
+  id: 1 | 2 | 3;
   member: (typeof members)[number];
   status: ChoreStatus;
 }[] = [
-  { id: 1, title: "Mutfağı toparla", member: members[0], status: "progress" },
-  { id: 2, title: "Bitkileri sula", member: members[1], status: "completed" },
-  { id: 3, title: "Çöpü çıkar", member: members[2], status: "review" },
+  { id: 1, member: members[0], status: "progress" },
+  { id: 3, member: members[2], status: "review" },
+  { id: 2, member: members[1], status: "completed" },
 ];
 
+/** `MainScreenBackground` line strengths of Faus Dark. */
+const darkLines = { apricot: 2.5, orange: 2.35, berry: 3.35 };
+
+/** Names and blurbs live in `content.games.items`; `modes` are the ones the app has. */
 export const games = [
-  {
-    id: "rockets",
-    title: "House Rockets",
-    text: "Ekibinle roket düellosu.",
-    badge: "Online",
-    icon: Rocket,
-  },
-  {
-    id: "tanks",
-    title: "House Tanks",
-    text: "Haritada tank savaşı.",
-    badge: "Arena",
-    icon: Crosshair,
-  },
-  {
-    id: "switch",
-    title: "House Switch",
-    text: "Gece şehrinde refleks testi.",
-    badge: "Refleks",
-    icon: ArrowUpDown,
-  },
-  {
-    id: "skyline",
-    title: "Skyline Dash",
-    text: "Çatıların üstünden süzül.",
-    badge: "Arcade",
-    icon: Send,
-  },
-  {
-    id: "rps",
-    title: "Taş, Kağıt, Makas",
-    text: "Kim bulaşık yıkayacak?",
-    badge: "Klasik",
-    icon: Hand,
-  },
-  {
-    id: "spin",
-    title: "Lucky Spin",
-    text: "Çarkı çevir, şansını dene.",
-    badge: "Şans",
-    icon: RotateCw,
-  },
+  { id: "rockets", icon: Rocket, modes: ["bot", "online"] },
+  { id: "tanks", icon: Crosshair, modes: ["bot", "online"] },
+  { id: "switch", icon: ArrowUpDown },
+  { id: "skyline", icon: Send },
+  { id: "rps", icon: Hand, modes: ["bot"] },
+  { id: "spin", icon: RotateCw },
 ] as const;
 
 export function GameCover({ id }: { id: (typeof games)[number]["id"] }) {
@@ -129,20 +101,23 @@ export function GameCover({ id }: { id: (typeof games)[number]["id"] }) {
       ) : (
         <game.icon className="cover-icon" size={38} strokeWidth={1.8} />
       )}
-      <span className="cover-badge">{game.badge}</span>
     </span>
   );
 }
 
+/**
+ * The app's main dashboard (`HouseDashboardView`) in iOS points, following the site theme
+ * with Faus Light or Faus Dark. Only the Ev tab is live; Profil and Oyunlar stay in the app.
+ */
 export function AppPreview({
-  tab,
-  onTabChange,
+  focus,
   className,
 }: {
-  tab: PreviewTab;
-  onTabChange: (tab: PreviewTab) => void;
+  focus?: PreviewFocus;
   className?: string;
 }) {
+  const { t } = useLang();
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
   const showToast = (message: string) => {
@@ -152,15 +127,20 @@ export function AppPreview({
   };
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
 
+  // Every focus target sits in the first screen, so the scroll returns to the top.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }, [focus]);
+
   return (
     <div
       className={`phone ${className ?? ""}`}
       role="group"
-      aria-label="FausCrew etkileşimli örnek ekranı"
+      aria-label={t.preview.label}
     >
       <div className="phone-viewport">
         <div className="app">
-          <AmbientLines className="app-lines" />
+          <AppBackdrop />
           <div className="app-status" aria-hidden="true">
             <span>9:41</span>
             <span className="dynamic-island" />
@@ -176,36 +156,10 @@ export function AppPreview({
               {toast}
             </div>
           )}
-          <div className="app-scroll" key={tab}>
-            {tab === "home" && <HomeScreen showToast={showToast} />}
-            {tab === "profile" && <ProfileScreen showToast={showToast} />}
-            {tab === "games" && <GamesScreen showToast={showToast} />}
+          <div className="app-scroll" ref={scrollRef}>
+            <Dashboard focus={focus} showToast={showToast} />
           </div>
-          <nav className="app-tabbar" aria-label="Örnek uygulama menüsü">
-            <HeroGeometry />
-            {(
-              [
-                { id: "profile", label: "Profil", icon: User },
-                { id: "home", label: "Ev", icon: House },
-                { id: "games", label: "Oyunlar", icon: Gamepad2 },
-              ] as const
-            ).map((item) => (
-              <button
-                key={item.id}
-                onClick={() => onTabChange(item.id)}
-                aria-pressed={tab === item.id}
-                className={`tab-item tab-${item.id}`}
-              >
-                <span className="tab-icon">
-                  {item.id === "home" && (
-                    <ChevronUp size={9} strokeWidth={3.5} />
-                  )}
-                  <item.icon size={20} strokeWidth={tab === item.id ? 2.5 : 2} />
-                </span>
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </nav>
+          <TabBar focus={focus} />
           <span className="home-indicator" />
         </div>
       </div>
@@ -213,28 +167,73 @@ export function AppPreview({
   );
 }
 
-function HeroCard({ children }: { children: ReactNode }) {
+/** `MainScreenBackground`: base, dark mesh, wash, glow and the ambient line field. */
+function AppBackdrop() {
   return (
-    <div className="app-hero">
-      <HeroGeometry />
-      {children}
-    </div>
+    <span className="app-backdrop" aria-hidden="true">
+      <span className="app-base" />
+      <MeshTexture className="app-mesh" />
+      <span className="app-wash" />
+      <AmbientLines className="app-lines app-lines-light" />
+      <AmbientLines
+        className="app-lines app-lines-dark"
+        strength={darkLines}
+        boost={0.6}
+      />
+    </span>
+  );
+}
+
+function TabBar({ focus }: { focus?: PreviewFocus }) {
+  const { t } = useLang();
+  return (
+    <nav className="app-tabbar" aria-label={t.preview.tabsLabel}>
+      <span className="tab-geometry" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+      </span>
+      <svg className="tab-gradient-defs" aria-hidden="true">
+        <linearGradient id="faus-tab-icon-gradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#ffa04d" />
+          <stop offset="1" stopColor="#ff6a2a" />
+        </linearGradient>
+      </svg>
+      <span className="tab-item">
+        <span className="tab-icon">
+          <User size={19} />
+        </span>
+        {t.preview.tabs.profile}
+      </span>
+      <span className="tab-item tab-home" aria-current="page">
+        <span className="tab-icon">
+          <ChevronUp size={9} strokeWidth={3.5} />
+          <House size={20} strokeWidth={2.4} />
+        </span>
+        {t.preview.tabs.home}
+      </span>
+      <span className={`tab-item ${focus === "games" ? "is-focused" : ""}`}>
+        <span className="tab-icon">
+          <Gamepad2 size={20} />
+        </span>
+        {t.preview.tabs.games}
+      </span>
+    </nav>
   );
 }
 
 function IconTile({
   icon: Icon,
   tone,
-  round = false,
   badge,
 }: {
   icon: typeof Users;
-  tone: string;
-  round?: boolean;
+  tone: "announce" | "chores";
   badge?: number;
 }) {
   return (
-    <span className={`icon-tile tile-${tone} ${round ? "tile-round" : ""}`}>
+    <span className={`icon-tile tile-${tone}`}>
       <Icon size={20} strokeWidth={2.3} />
       <span className="tile-dot" />
       {badge ? <span className="tile-badge">{badge}</span> : null}
@@ -242,294 +241,210 @@ function IconTile({
   );
 }
 
-function HomeScreen({ showToast }: { showToast: (message: string) => void }) {
+/** SF Symbols' filled status circles: a status-colored disc with the glyph cut out. */
+function StatusGlyph({ status, size }: { status: ChoreStatus; size: number }) {
+  const Glyph = statusMeta[status].glyph;
+  return (
+    <span
+      className="status-glyph"
+      style={{ "--glyph": `${size}px` } as CSSProperties}
+    >
+      <Glyph size={size * 0.56} strokeWidth={3.2} />
+    </span>
+  );
+}
+
+function Card({
+  className,
+  focused,
+  children,
+}: {
+  className: string;
+  focused?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <section className={`app-card ${className} ${focused ? "is-focused" : ""}`}>
+      {children}
+    </section>
+  );
+}
+
+function Dashboard({
+  focus,
+  showToast,
+}: {
+  focus?: PreviewFocus;
+  showToast: (message: string) => void;
+}) {
+  const { t } = useLang();
   const [chores, setChores] = useState(initialChores);
   const [announcementOpen, setAnnouncementOpen] = useState(false);
   const [read, setRead] = useState(false);
-  const [fabExpanded, setFabExpanded] = useState(false);
-  const completed = chores.filter((chore) => chore.status === "completed").length;
+  const completed = chores.filter(
+    (chore) => chore.status === "completed",
+  ).length;
   const progress = completed / chores.length;
-
-  useEffect(() => {
-    if (!fabExpanded) return;
-    const timer = window.setTimeout(() => setFabExpanded(false), 3000);
-    return () => window.clearTimeout(timer);
-  }, [fabExpanded]);
+  // `TodaysChoresCard`: active chores first, then the history.
+  const active = chores.filter((chore) => chore.status !== "completed");
+  const history = chores.filter((chore) => chore.status === "completed");
 
   const advance = (id: number) => {
     const chore = chores.find((item) => item.id === id)!;
     const next = statusMeta[chore.status].next;
-    if (next === "completed") showToast("Bir iş daha tamam!");
+    if (next === "completed") showToast(t.preview.choreDone);
     setChores(
       chores.map((item) => (item.id === id ? { ...item, status: next } : item)),
     );
   };
 
+  const choreRow = (chore: (typeof chores)[number]) => {
+    const title = t.preview.chores[chore.id];
+    const label = t.preview.status[chore.status];
+    return (
+      <button
+        key={chore.id}
+        className={`chore-row status-${chore.status}`}
+        onClick={() => advance(chore.id)}
+        aria-label={`${title}, ${chore.member.name}: ${label}. ${t.preview.advance}`}
+      >
+        <span className="chore-status-icon">
+          {chore.status === "completed" ? (
+            <span
+              className="status-glyph is-done"
+              style={{ "--glyph": "24px" } as CSSProperties}
+            >
+              <Check size={13} strokeWidth={3.4} />
+            </span>
+          ) : (
+            <StatusGlyph status={chore.status} size={24} />
+          )}
+        </span>
+        <span className="chore-body">
+          <strong>{title}</strong>
+          <span className="chore-meta">
+            <span className="avatar">{chore.member.initial}</span>
+            <span className="chore-person">{chore.member.name}</span>
+            <span className="status-badge">
+              {chore.status === "completed" ? (
+                <BadgeCheck size={11} strokeWidth={2.6} />
+              ) : (
+                <StatusGlyph status={chore.status} size={10} />
+              )}
+              {label}
+            </span>
+          </span>
+        </span>
+        <span className="chore-chevron">
+          <ChevronRight size={12} strokeWidth={3.2} />
+        </span>
+      </button>
+    );
+  };
+
   return (
-    <>
-      <div className="app-stack">
-        <HeroCard>
-          <span className="house-thumb">
+    <div className="app-stack">
+      <div className="app-hero">
+        <HeroGeometry />
+        <span className="house-thumb">
+          <span>
             <FausHouseIcon size={32} />
           </span>
-          <span className="hero-text">
-            <small>Merhaba, Elif</small>
-            <strong>Moda’daki evimiz</strong>
-          </span>
-          <button
-            className="hero-action"
-            aria-label="Örnek duyuru oluştur"
-            onClick={() => showToast("Duyurular mobil uygulamada.")}
-          >
-            <Megaphone size={20} />
-          </button>
-        </HeroCard>
-
-        <section
-          className={`app-card announcement-card ${announcementOpen ? "is-open" : ""}`}
+        </span>
+        <span className="hero-text">
+          <small>{t.preview.hello}</small>
+          <strong>{t.preview.house}</strong>
+        </span>
+        <button
+          className="hero-action"
+          aria-label={t.preview.createAnnouncement}
+          onClick={() => showToast(t.preview.announceInApp)}
         >
-          <button
-            className="card-header"
-            onClick={() => setAnnouncementOpen(!announcementOpen)}
-            aria-expanded={announcementOpen}
-          >
-            <IconTile icon={Megaphone} tone="announce" badge={read ? 0 : 1} />
-            <span className="card-title">
-              <strong>Duyurular</strong>
-              <small>{read ? "Tümünü okudun" : "1 okunmamış duyuru"}</small>
-            </span>
-            <span className="chevron-chip">
-              <ChevronDown size={15} strokeWidth={3} />
-            </span>
-          </button>
-          {announcementOpen && (
-            <div className="announcement-body">
-              <div className={`announcement-row ${read ? "is-read" : ""}`}>
-                <strong>
-                  <span className="unread-dot" />
-                  Bu akşam film gecesi!
-                </strong>
-                <p>20.30’da salonda buluşalım. Filmi birlikte seçeriz!</p>
-                <div className="announcement-meta">
-                  <span>
-                    <span>
-                      <Clock size={12} /> 10 dk önce
-                    </span>
-                    <span className="publisher">
-                      <CircleUserRound size={12} /> Deniz yayınladı
-                    </span>
-                  </span>
-                  <button onClick={() => setRead(!read)} aria-pressed={read}>
-                    <Check size={12} strokeWidth={3} />
-                    {read ? "Okundu" : "Okundu say"}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </section>
+          <Megaphone size={20} />
+        </button>
+      </div>
 
-        <section className="app-card chores-card inset">
-          <div className="chores-header">
-            <IconTile icon={ClipboardList} tone="chores" round />
-            <span className="card-title">
-              <strong>Bugünün görevleri</strong>
-              <small>
-                {completed}/{chores.length} tamamlandı
-              </small>
-            </span>
-            <span
-              className="progress-ring"
-              style={{ "--progress": progress } as CSSProperties}
-            >
-              %{Math.round(progress * 100)}
-            </span>
-          </div>
-          <span className="progress-bar">
-            <span style={{ transform: `scaleX(${progress})` }} />
+      <Card
+        className={`announcement-card ${announcementOpen ? "is-open" : ""}`}
+        focused={focus === "announcements"}
+      >
+        <button
+          className="card-header"
+          onClick={() => setAnnouncementOpen(!announcementOpen)}
+          aria-expanded={announcementOpen}
+        >
+          <IconTile icon={Megaphone} tone="announce" badge={read ? 0 : 1} />
+          <span className="card-title">
+            <strong>{t.preview.announcements}</strong>
+            <small>{t.preview.activeCount}</small>
           </span>
-          <div className="chore-list">
-            {chores.map((chore) => {
-              const meta = statusMeta[chore.status];
-              return (
-                <button
-                  key={chore.id}
-                  className={`chore-row status-${chore.status}`}
-                  onClick={() => advance(chore.id)}
-                  aria-label={`${chore.title}, ${chore.member.name}: ${meta.label}. Durumu ilerlet.`}
-                >
-                  <span className="chore-status-icon">
-                    <meta.icon size={22} strokeWidth={2.4} />
+          <span className="chevron-chip">
+            <ChevronDown size={14} strokeWidth={3} />
+          </span>
+        </button>
+        {announcementOpen && (
+          <div className="announcement-body">
+            <div className={`announcement-row ${read ? "is-read" : ""}`}>
+              <strong>
+                <span className="unread-dot" />
+                {t.preview.movieTitle}
+              </strong>
+              <p>{t.preview.movieBody}</p>
+              <div className="announcement-meta">
+                <span>
+                  <span>
+                    <Clock size={11} /> {t.preview.movieTime}
                   </span>
-                  <span className="chore-body">
-                    <strong>{chore.title}</strong>
-                    <span className="chore-meta">
-                      <span className={`avatar avatar-${chore.member.tint}`}>
-                        {chore.member.initial}
-                      </span>
-                      <span className="chore-person">{chore.member.name}</span>
-                      <span className="status-badge">
-                        <meta.icon size={10} strokeWidth={3} />
-                        {meta.label}
-                      </span>
-                    </span>
-                  </span>
-                  <span className="chore-chevron">
-                    <ChevronRight size={13} strokeWidth={3} />
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="app-card members-card inset">
-          <div className="members-header">
-            <IconTile icon={Users} tone="members" />
-            <strong>Ev arkadaşları</strong>
-            <span className="count-pill">
-              <span />
-              {members.length}
-            </span>
-          </div>
-          <div className="member-tiles">
-            {members.map((member) => (
-              <div key={member.name} className={`member-tile tint-${member.tint}`}>
-                <span className="member-ring">
-                  <span className={`avatar avatar-${member.tint}`}>
-                    {member.initial}
-                  </span>
-                  <span className="member-house">
-                    <House size={8} strokeWidth={3.5} />
+                  <span className="publisher">
+                    <CircleUserRound size={11} strokeWidth={2.6} />{" "}
+                    {t.preview.publisher}
                   </span>
                 </span>
-                <span>{member.name}</span>
+                <button onClick={() => setRead(!read)} aria-pressed={read}>
+                  {read ? (
+                    <CircleCheck size={13} strokeWidth={2.6} />
+                  ) : (
+                    <Circle size={13} strokeWidth={2.6} />
+                  )}
+                  {read ? t.preview.read : t.preview.markRead}
+                </button>
               </div>
-            ))}
-          </div>
-        </section>
-      </div>
-      <button
-        className={`app-fab ${fabExpanded ? "is-expanded" : ""}`}
-        onClick={() =>
-          fabExpanded
-            ? (setFabExpanded(false), showToast("Görev eklemek uygulamada."))
-            : setFabExpanded(true)
-        }
-        aria-label="Yeni görev"
-      >
-        <Plus size={22} strokeWidth={2.6} />
-        {fabExpanded && <span>Yeni görev</span>}
-      </button>
-    </>
-  );
-}
-
-function ProfileScreen({ showToast }: { showToast: (message: string) => void }) {
-  const [inviteCode, setInviteCode] = useState(false);
-  return (
-    <div className="app-stack profile-stack">
-      <HeroCard>
-        <span className="profile-avatar">
-          <span>E</span>
-        </span>
-        <span className="hero-text">
-          <strong>Elif</strong>
-          <span className="hero-underline" />
-        </span>
-      </HeroCard>
-
-      <section className="app-card inset house-info-card">
-        <div className="members-header">
-          <IconTile icon={House} tone="members" />
-          <strong>Evlerim</strong>
-        </div>
-        <div className="house-row">
-          <span className="house-thumb small">
-            <FausHouseIcon size={22} />
-          </span>
-          <span className="card-title">
-            <strong>Moda’daki evimiz</strong>
-            <small>3 ev arkadaşı · Şu anki ev</small>
-          </span>
-          <span className="chore-chevron">
-            <ChevronRight size={13} strokeWidth={3} />
-          </span>
-        </div>
-        <div className="invite-section">
-          <span className="invite-title">
-            <UserPlus size={16} strokeWidth={2.4} />
-            Ev arkadaşlarını davet et
-          </span>
-          {inviteCode ? (
-            <div className="invite-code">
-              <span>
-                <strong>MODA-7K2Q</strong>
-                <small>Örnek kod · 24 saat geçerli</small>
-              </span>
-              <button
-                onClick={() => showToast("Örnek kod kopyalandı.")}
-                aria-label="Örnek davet kodunu kopyala"
-              >
-                <Copy size={16} />
-              </button>
             </div>
-          ) : (
-            <button className="invite-button" onClick={() => setInviteCode(true)}>
-              <KeyRound size={17} />
-              Davet kodu oluştur
-            </button>
-          )}
-        </div>
-      </section>
-
-      <section className="app-card inset settings-card">
-        {[
-          { icon: Languages, label: "Dil", value: "Türkçe" },
-          { icon: Info, label: "Hakkında", value: "" },
-        ].map((row) => (
-          <div className="settings-row" key={row.label}>
-            <row.icon size={18} />
-            <span>{row.label}</span>
-            <small>{row.value}</small>
-            <ChevronRight size={14} strokeWidth={2.6} />
           </div>
-        ))}
-      </section>
-    </div>
-  );
-}
+        )}
+      </Card>
 
-function GamesScreen({ showToast }: { showToast: (message: string) => void }) {
-  return (
-    <div className="app-stack games-stack">
-      <HeroCard>
-        <Gamepad2 className="hero-watermark" size={54} strokeWidth={2.2} />
-        <span className="hero-text">
-          <strong>Oyunlar</strong>
-          <small>Ekibinle kısa bir mola ver.</small>
-        </span>
-      </HeroCard>
-      <div className="game-grid">
-        {games.map((game) => (
-          <button
-            key={game.id}
-            className="game-card"
-            onClick={() => showToast("Oyunlar mobil uygulamada seni bekliyor.")}
+      <Card className="chores-card inset" focused={focus === "chores"}>
+        <div className="chores-header">
+          <IconTile icon={ClipboardList} tone="chores" />
+          <span className="card-title">
+            <strong>{t.preview.todays}</strong>
+            <small>{t.preview.completedOf(completed, chores.length)}</small>
+          </span>
+          <span
+            className="progress-ring"
+            style={{ "--progress": progress } as CSSProperties}
           >
-            <GameCover id={game.id} />
-            <span className="game-text">
-              <strong>{game.title}</strong>
-              <small>{game.text}</small>
-            </span>
-          </button>
-        ))}
-      </div>
+            {t.preview.percent(Math.round(progress * 100))}
+          </span>
+        </div>
+        <span className="progress-bar">
+          <span style={{ transform: `scaleX(${progress})` }} />
+        </span>
+        <div className="chore-list">
+          {active.map(choreRow)}
+          {history.length > 0 && active.length > 0 && (
+            <span className="chore-history">{t.preview.history}</span>
+          )}
+          {history.map(choreRow)}
+        </div>
+      </Card>
     </div>
   );
 }
 
 export function FloatingNotes() {
+  const { t } = useLang();
   return (
     <>
       <div className="floating-note note-top">
@@ -537,8 +452,8 @@ export function FloatingNotes() {
           <CircleCheck size={20} />
         </span>
         <span>
-          <strong>Bir iş daha tamam!</strong>
-          <small>Bitkileri sula · Deniz</small>
+          <strong>{t.preview.choreDone}</strong>
+          <small>{t.preview.noteDone}</small>
         </span>
       </div>
       <div className="floating-note note-bottom">
@@ -546,8 +461,8 @@ export function FloatingNotes() {
           <Megaphone size={17} />
         </span>
         <span>
-          <strong>Bu akşam film gecesi!</strong>
-          <small>Yeni duyuru · Deniz</small>
+          <strong>{t.preview.movieTitle}</strong>
+          <small>{t.preview.noteAnnouncement}</small>
         </span>
       </div>
     </>
