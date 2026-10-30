@@ -52,22 +52,32 @@ The website reuses the mobile app's own visual language (`houseflowApp/FausCrew/
 
 ## Themes
 
-The theme follows the system by default; the header toggle offers light, system and dark. The choice lives in `localStorage` (`fauscrew-theme`) and an inline script in `index.html` applies it before first paint via `html[data-theme]`. All colors are CSS custom properties on `:root`, overridden under `:root[data-theme="dark"]`.
+The theme follows the system until the visitor flips the header switch: a sun knob that rolls across and becomes a crescent moon, while the new theme grows as a circle from the switch (View Transitions; instant under reduced motion or without support). The choice lives in `localStorage` (`fauscrew-theme`) and an inline script in `index.html` applies it before first paint via `html[data-theme]`. All colors are CSS custom properties on `:root`, overridden under `:root[data-theme="dark"]`.
 
 **Light:** warm paper background, berry emphasis, brand-gradient surfaces (`#ff9138 → #ff7a26 → #611a38`) and the app's primary button gradient.
 
-**Dark:** the dark icon's berry-black gradient (`#33101f → #14060c`) as background and brand surfaces, its ember glow (`#ff7a26` at ~16%) behind key visuals, and its orange glyph gradient (`#ffa04d → #ff6a2a`) for emphasis, primary buttons and the roof-F mark. Primary buttons switch to dark ink on orange. The app icon swaps to the dark variant.
+**Dark:** the dark icon's berry-black gradient (`#33101f → #14060c`) as background and brand surfaces, its ember glow (`#ff7a26` at ~16%) behind key visuals, and its orange glyph gradient (`#ffa04d → #ff6a2a`) for emphasis, primary buttons and the roof-F mark. Primary buttons switch to dark ink on orange. The app icon swaps to the dark variant. The base background carries the app's perforated hex mesh (`FausMeshTextureView`: 5.4 pt pitch, dark holes with a warm rim, radial fade toward the top-trailing light), fixed to the viewport behind the page.
 
 ## App preview
 
-`AppPreview` is a faithful, interactive copy of the app's main screens, authored in iOS points on a 390×844 canvas and scaled with `--s`:
+`AppPreview` is a faithful, interactive copy of the app's main dashboard (`HouseDashboardView`), authored in iOS points on a 390×844 canvas and scaled with `--s`. Only the Ev tab is live: Profil and Oyunlar appear in the tab bar but do not open. The screen follows the site theme with the app's own themes from `FausTheme.swift`, held as `--a-*` tokens on `.app`:
 
-- **Tab bar:** floating apricot → orange → berry pill with Profil · Ev · Oyunlar, matching `CustomTabBar`.
-- **Ev:** `BrandHeroCardBackground` header with house thumbnail, `AnnouncementCard` (purple/indigo, unread badge, expandable), `TodaysChoresCard` (indigo → teal ring and bar, status badges Devam ediyor / İncelemede / Tamamlandı), `HouseMembersCard` tiles, and the green floating "Yeni görev" button.
-- **Profil:** profile hero with orange avatar ring, house row and the teal invite-code section.
-- **Oyunlar:** hero card plus the `GamesHubView` 2-column grid with each game's own cover colors.
+- **Faus Light:** iOS system colors, orange → berry hero and tab bar.
+- **Faus Dark:** ember on deep berry: berry-black base with the perforated mesh, glow and stronger ambient lines, deep-berry hero and tab bar with an ember bloom, pastel indigo/teal/purple accents.
 
-The preview follows the site theme using iOS light/dark system colors. Example data stays labeled; nothing is saved.
+Contents: hero with house picture frame, `AnnouncementCard` (expandable, read toggle), `TodaysChoresCard` (indigo → teal ring and bar, active chores first, then "Geçmiş"); the members card and the floating button are left out. The features section points at a part of the dashboard (`focus`) instead of switching screens. Example data stays labeled; nothing is saved.
+
+## Games
+
+The games section shows the two ways to play as a pair of cards, offline against bots and online with the house, and the rail's covers carry art only. Each game card gets "Bot" and "Online" chips only for the modes it has in the app: House Rockets and House Tanks have both, Taş, Kağıt, Makas has bots only, and the rest get no chips.
+
+## Language
+
+The site speaks Turkish and English. Every visible text lives in `src/content.ts`; Turkish is the source and the English copy keeps the same shape, including the sample screen, which follows the app's own English strings. The language switch is built like the theme switch: the chosen flag (Turkish, or half US, half UK) is the knob and rolls across the track, the other language waits on the free side as its code, and the new copy fades in. The page opens in Turkish until the visitor picks, and the choice is kept under `fauscrew-lang`.
+
+## Header
+
+`SiteHeader` blends into the hero at the top of the page and, once the page scrolls, condenses into a floating glass island that echoes the app's floating tab bar: gradient rim (apricot → berry), a highlight that slides to the section in view, and a reading-progress line along its lower edge. On mobile the island grows a sheet of section tiles, using the app's card gradients for their icons, with the primary action and the "yakında" store note.
 
 ## Motion
 

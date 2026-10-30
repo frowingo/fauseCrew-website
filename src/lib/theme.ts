@@ -1,43 +1,85 @@
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 
-export type ThemeChoice = "system" | "light" | "dark";
+export type Theme = "light" | "dark";
 const storageKey = "fauscrew-theme";
 const darkQuery = "(prefers-color-scheme: dark)";
 
-function readChoice(): ThemeChoice {
+function savedTheme(): Theme | null {
   try {
     const saved = localStorage.getItem(storageKey);
     if (saved === "light" || saved === "dark") return saved;
   } catch {
     // Depolama kapalıysa sistem tercihi geçerli olur.
   }
-  return "system";
+  return null;
 }
 
-function apply(choice: ThemeChoice) {
-  const dark =
-    choice === "dark" ||
-    (choice === "system" && window.matchMedia(darkQuery).matches);
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
+function systemTheme(): Theme {
+  return window.matchMedia(darkQuery).matches ? "dark" : "light";
 }
 
+/**
+ * Light or dark. Until the visitor picks one, the page follows the system; the inline
+ * script in index.html applies the same rule before first paint.
+ */
 export function useTheme() {
-  const [choice, setChoice] = useState<ThemeChoice>(readChoice);
+  const [theme, setTheme] = useState<Theme>(() => savedTheme() ?? systemTheme());
 
   useEffect(() => {
-    apply(choice);
+    const media = window.matchMedia(darkQuery);
+    const follow = () => {
+      if (savedTheme()) return;
+      const next = systemTheme();
+      document.documentElement.dataset.theme = next;
+      setTheme(next);
+    };
+    media.addEventListener("change", follow);
+    return () => media.removeEventListener("change", follow);
+  }, []);
+
+  /** Switches theme, revealing the new one as a circle that grows from `origin`. */
+  const toggle = (origin: { x: number; y: number }) => {
+    const next: Theme = theme === "dark" ? "light" : "dark";
     try {
-      if (choice === "system") localStorage.removeItem(storageKey);
-      else localStorage.setItem(storageKey, choice);
+      localStorage.setItem(storageKey, next);
     } catch {
       // Seçim yalnızca bu oturumda geçerli kalır.
     }
-    if (choice !== "system") return;
-    const media = window.matchMedia(darkQuery);
-    const follow = () => apply("system");
-    media.addEventListener("change", follow);
-    return () => media.removeEventListener("change", follow);
-  }, [choice]);
+    const root = document.documentElement;
+    const commit = () => {
+      root.dataset.theme = next;
+      flushSync(() => setTheme(next));
+    };
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!document.startViewTransition || reduced) {
+      commit();
+      return;
+    }
+    // Color transitions would blur the reveal edge, so they pause during the switch.
+    root.classList.add("theme-switching");
+    const transition = document.startViewTransition(commit);
+    transition.ready.then(() => {
+      const radius = Math.hypot(
+        Math.max(origin.x, window.innerWidth - origin.x),
+        Math.max(origin.y, window.innerHeight - origin.y),
+      );
+      root.animate(
+        {
+          clipPath: [
+            `circle(0px at ${origin.x}px ${origin.y}px)`,
+            `circle(${radius}px at ${origin.x}px ${origin.y}px)`,
+          ],
+        },
+        {
+          duration: 700,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          pseudoElement: "::view-transition-new(root)",
+        },
+      );
+    });
+    transition.finished.finally(() => root.classList.remove("theme-switching"));
+  };
 
-  return [choice, setChoice] as const;
+  return [theme, toggle] as const;
 }

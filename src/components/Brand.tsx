@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { useLang } from "../lib/i18n";
 
 export function AppIcon({ size }: { size: number }) {
   return (
@@ -10,8 +11,9 @@ export function AppIcon({ size }: { size: number }) {
 }
 
 export function Brand() {
+  const { t } = useLang();
   return (
-    <a className="brand" href="#" aria-label="FausCrew ana sayfa">
+    <a className="brand" href="#" aria-label={t.brandHome}>
       <AppIcon size={38} />
       <span>
         FausCrew<span className="brand-dot">.</span>
@@ -74,8 +76,12 @@ export function FausMark({
   );
 }
 
-/** FausCrew's own house glyph (24 grid), shared by iOS and Android. */
+/**
+ * FausCrew's own house glyph (24 grid), shared by iOS and Android. It is stroked with the
+ * app's `FausBrand.houseGradient`, whose stops follow the theme (`--house-1…3`).
+ */
 export function FausHouseIcon({ size = 24 }: { size?: number }) {
+  const gradient = `faus-house-${useId().replace(/[^\w-]/g, "")}`;
   return (
     <svg
       className="faus-house"
@@ -83,12 +89,26 @@ export function FausHouseIcon({ size = 24 }: { size?: number }) {
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke={`url(#${gradient})`}
       strokeWidth="2.1"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
     >
+      <defs>
+        <linearGradient
+          id={gradient}
+          x1="3"
+          y1="3"
+          x2="21"
+          y2="21"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" className="house-stop-1" />
+          <stop offset="0.4" className="house-stop-2" />
+          <stop offset="1" className="house-stop-3" />
+        </linearGradient>
+      </defs>
       <path d="M2.75 11.25 12 3.5l9.25 7.75M16.25 6.9V4.75M5.25 9.4v9.1q0 2 2 2h9.5q2 0 2-2V9.4M9.75 20.5v-4.25q0-2.25 2.25-2.25t2.25 2.25v4.25" />
     </svg>
   );
@@ -98,7 +118,8 @@ export function FausHouseIcon({ size = 24 }: { size?: number }) {
  * Port of the app's `MainScreenBackground` line field: static, irregular curves in
  * apricot, orange and berry that give empty space a little depth.
  */
-const curves: [string, "apricot" | "orange" | "berry", number, number][] = [
+type LineTone = "apricot" | "orange" | "berry";
+const curves: [string, LineTone, number, number][] = [
   ["M-8 17C4 5 15 1 36-7", "apricot", 0.17, 0.85],
   ["M-6 30C11 17 30 7 52-6", "berry", 0.18, 0.8],
   ["M-10 8C30 14 74-6 110 26", "orange", 0.2, 1.15],
@@ -112,12 +133,20 @@ const curves: [string, "apricot" | "orange" | "berry", number, number][] = [
   ["M42 106C58 92 83 88 107 60", "berry", 0.17, 0.8],
 ];
 
+/**
+ * `strength` and `boost` mirror `FausBackdrop`: each tone's opacity is multiplied by its
+ * strength (capped at 0.66, like the app) and `boost` widens every line.
+ */
 export function AmbientLines({
   className,
   weight = 1,
+  strength,
+  boost = 0,
 }: {
   className?: string;
   weight?: number;
+  strength?: Record<LineTone, number>;
+  boost?: number;
 }) {
   return (
     <svg
@@ -131,14 +160,48 @@ export function AmbientLines({
           key={d}
           d={d}
           className={`line-${tone}`}
-          strokeOpacity={opacity}
-          strokeWidth={width * weight}
+          strokeOpacity={Math.min(opacity * (strength?.[tone] ?? 1), 0.66)}
+          strokeWidth={(width + boost) * weight}
           vectorEffect="non-scaling-stroke"
           fill="none"
           strokeLinecap="round"
         />
       ))}
     </svg>
+  );
+}
+
+/**
+ * Port of Faus Dark's `FausMeshTextureView`: a perforated hex grid of dark holes with a
+ * warm rim, plus two faint sheens. Measured in iOS points (5.4 pitch, 4.675 row pitch).
+ */
+export function MeshTexture({ className = "page-mesh" }: { className?: string }) {
+  const pattern = `faus-mesh-${useId().replace(/[^\w-]/g, "")}`;
+  return (
+    <span className={className} aria-hidden="true">
+      <svg className="mesh-holes">
+        <defs>
+          <pattern
+            id={pattern}
+            width="5.4"
+            height="9.35"
+            patternUnits="userSpaceOnUse"
+          >
+            {[
+              [2.7, 2.3375],
+              [0, 7.0125],
+              [5.4, 7.0125],
+            ].map(([x, y]) => (
+              <g key={`${x}-${y}`}>
+                <circle className="mesh-rim" cx={x} cy={y} r="2.05" />
+                <circle className="mesh-hole" cx={x} cy={y} r="1.6" />
+              </g>
+            ))}
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#${pattern})`} />
+      </svg>
+    </span>
   );
 }
 

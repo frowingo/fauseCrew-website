@@ -18,7 +18,7 @@
       name="description"
       content="FausCrew ile ev görevlerini paylaş, ev arkadaşlarınla aynı planda buluş ve birlikte eğlen. Ortak yaşam için tek bir uygulama. App Store ve Google Play'de yakında."
     />
-    <meta property="og:title" content="FausCrew — Aynı ev. Aynı ekip." />
+    <meta property="og:title" content="FausCrew — Evin ritmini şimdi yakalayın" />
     <meta
       property="og:description"
       content="Görevleri paylaşın, planları kaçırmayın, birlikte daha çok eğlenin. Evinizin ortak alanı FausCrew."
@@ -52,8 +52,15 @@
             window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.dataset.theme = dark ? "dark" : "light";
       })();
+      // Kaydedilmiş dil seçimi varsa sayfa o dilde açılır.
+      (function () {
+        try {
+          if (localStorage.getItem("fauscrew-lang") === "en")
+            document.documentElement.lang = "en";
+        } catch (e) {}
+      })();
     </script>
-    <title>FausCrew — Aynı ev. Aynı ekip.</title>
+    <title>FausCrew — Evin ritmini şimdi yakalayın</title>
   </head>
   <body>
     <div id="root"></div>
